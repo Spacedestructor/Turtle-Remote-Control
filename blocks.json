@@ -1,0 +1,14 @@
+{
+	"blocks":{
+		"materials": {
+			"0": "oak"
+		},
+		"types": {
+			"0": "log"
+		},
+		"variants": {
+			"0": "default",
+			"1": "stripped"
+		}
+	}
+}

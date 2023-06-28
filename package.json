@@ -1,0 +1,29 @@
+{
+  "name": "turtle-remote-control",
+  "version": "1.0.0",
+  "description": "Lets you Remote Control Minecraft Turtles from the Computercraft/ComputerCraft Tweaked Mod.",
+  "main": "webserver/webserver.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Spacedestructor/Turtle-Remote-Control.git"
+  },
+  "keywords": [
+    "Minecraft",
+    "js",
+    "lua",
+    "computercraft",
+    "cc:tweaked"
+  ],
+  "author": "Spacedestructor",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Spacedestructor/Turtle-Remote-Control/issues"
+  },
+  "homepage": "https://github.com/Spacedestructor/Turtle-Remote-Control#readme",
+  "dependencies": {
+    "ws": "^8.13.0"
+  }
+}

@@ -1,0 +1,76 @@
+When broadcasting prefix with Device ID,
+this is always set and makes identification more easy.
+Packet Designs: (note: packets always use device id rather then label because this consistently stays the same for the worlds lifetime, label is mostly for displaying purpose to the user.)
+{
+	["source"] = id,
+	["destination"] = "server",
+	["data"] = "",
+	["type"] = "self-request"
+}
+"self-request" Devices wants to know what Metadata the Server has stored about it, the data field here is either empty or omitted as its ignored by the server regardless.
+Still including all fields is only personal preference.
+{
+	["source"] = "server",
+	["destination"] = id,
+	["data"] = devicemetadata,
+	["type"] = "self-request-report"
+}
+"self-request-report" server responds to "self-request" Device, provides its id as destination and the device metadata as the "data".
+{
+	["source"] = id,
+	["destination"] = "server",
+	["data"] = label,
+	["type"] = "setup-notice"
+}
+"setup-notice" Device notifies the server that it has completed the setup, data contains all the data created.
+The Server will restrict the device until it has either data stored about it or recieved the "setup-notice".
+Turtle Metadata Design:
+"0":{
+	"id":0,
+	"type":"Turtle",
+	"label":"Test Turtle",
+	"peripherals":{
+		"command":{
+			"present":false,
+			"side":""
+		},
+		"computer":{
+			"present":false,
+			"side":""
+		},
+		"drive":{
+			"present":false,
+			"side":""
+		},
+		"modem":{
+			"present":false,
+			"side":""
+		},
+		"monitor":{
+			"present":false,
+			"side":""
+		},
+		"printer":{
+			"present":false,
+			"side":""
+		},
+		"speaker":{
+			"present":false,
+			"side":""
+		}
+	},
+	"profession":"",
+	"setup_complete":false
+}
+Turtle Steps:
+1. Get Type (done?)
+2. Get Label (done?)
+3. Get Peripherals (done!)
+4. Set Profession Type
+5. Join Network 0
+6. Broadcast Setup summary
+	`[0] Type: ${pc}, Label: ${os.getComputerLabel()}, Peripherals: ${peripherals}`
+		Note: sucessfully completing step 6 marks the end of the init.
+7. Main Loop
+	1. Check Connection
+	2. Reconnect if Necessary

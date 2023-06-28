@@ -1,0 +1,10 @@
+{
+	"tools":{
+		"digging":["shovel"],
+		"crafty":["crafting_table"],
+		"felling":["axe"],
+		"farming":["hoe"],
+		"mining":["pickaxe"],
+		"melee":["sword"]
+	}
+}

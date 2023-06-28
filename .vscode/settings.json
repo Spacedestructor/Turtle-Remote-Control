@@ -1,0 +1,17 @@
+{
+	"Lua.diagnostics.globals": [
+		"turtle",
+		"ws",
+		"http",
+		"textutils",
+		"peripheral",
+		"send",
+		"monitor",
+		"pocket",
+		"inventory",
+		"write",
+		"read",
+		"sleep",
+		"shell"
+	]
+}

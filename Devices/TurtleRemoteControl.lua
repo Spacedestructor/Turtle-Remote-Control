@@ -5,129 +5,246 @@ Port = tostring(arg[2])
 Link = "ws://" .. IP .. ":" .. Port
 Type = "Turtle"
 Label = ""
-Modem = {present = false, side = "", wrap = ""}
+Tool = { present = false, side = "", name = "" }
+Modem = { present = false, side = "", wrap = "" }
 Profession = ""
 ID = os.getComputerID()
 BroadcastNetwork = arg[3]
 SetupComplete = false
 function Setup()
-	--Check if Setup was already Completed before
-	Packet = {["source"] = ID, ["destination"] = "server", ["data"] = "", ["type"] = "self-request"}
+	WS, Error = assert(http.websocket(Link))
+	assert(WS, "Failed to establish a websocket connection!")
+	Packet = { ["source"] = ID, ["destination"] = "server", ["data"] = "", ["type"] = "self-request" }
 	SerializedPacket = textutils.serializeJSON(Packet)
-	print("Self Request: " .. SerializedPacket)
-	Response = http.get(Link,Packet)
-	local responsestring = ""
+	print("Request: " .. SerializedPacket)
+	WS.send(SerializedPacket)
+	Response, Binary = WS.receive()
 	if type(Response) == "nil" then
-		responsestring = tostring(Response)
+		print("Websocket Connection timedout!")
 	else
-		responsestring = textutils.serializeJSON(Response)
+		print("Response: " .. Response)
 	end
-	print("Response: " .. responsestring)
-	if Response == nil then
-		--Get Peripherals
+	if Response.data == nil then
 		if peripheral.find("modem") ~= nil then
 			Modem.present = true
 		end
-		assert(peripheral.getType("left") == "modem" or peripheral.getType("right") == "modem", "There most be exactly 1 Wireless Modem and 1 Empty Slot!")
+		print("Modem Present: " .. tostring(Modem.present))
+		assert(peripheral.getType("left") == "modem" or peripheral.getType("right") == "modem",
+			"There most be exactly 1 Wireless Modem and 1 Empty Slot!")
 		if peripheral.getType("left") == "modem" then
 			Modem.side = "left"
 		elseif peripheral.getType("right") == "modem" then
 			Modem.side = "right"
 		end
-		assert(Modem.side == "left" or "right", "We somehow failed to save what side the Modem is on, after defining what side it is?")
+		print("Modem Side: " .. Modem.side)
 		Modem.wrap = peripheral.wrap(Modem.side)
-		print("Modem Present: " .. tostring(Modem.present) .. ", Side: " .. Modem.side)
 		--Set Profession
 		for i = 1, 16, 1 do
+			print("Checking Inventory Slot " .. i .. " out of 16")
 			if turtle.getItemCount(i) > 0 then
-				ItemDetail = textutils.serializeJSON(turtle.getItemDetail(i, true))
-				if string.match(ItemDetail.name, "shovel") ~= nil then
-					Profession="digging"
+				print("Item Count: " .. turtle.getItemcount(i))
+				ItemDetail = turtle.getItemDetail(i, true)
+				SerializedItemDetail = textutils.serializedJSON(ItemDetail)
+				print("Item Details: " .. SerializedItemDetail)
+				local namepos = string.find(ItemDetail.name, ":", 1, true)
+				print(namepos)
+				local namestring = string.sub(ItemDetail.name, namepos + 1, -1)
+				print(namestring)
+				assert(string.match(ItemDetail.name, "minecraft:diamond"), "Must be a Diamond Minecraft Tool!")
+				assert(not ItemDetail.enchantments, "Tool must be Unenchanted!")
+				assert(not ItemDetail.damage, "Tool must be Undamaged!")
+				if namestring == "diamond_shovel" then
+					print("Found a " .. ItemDetail.name .. " in slot " .. i)
+					Profession = "digging"
+					print("Profession: " .. Profession)
 					turtle.select(i)
 					if peripheral.ispresent("right") and not peripheral.ispresent("left") then
 						Status, Reason = turtle.equipRight()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					elseif peripheral.isPresent("left") and not peripheral.ispresent("right") then
 						Status, Reason = turtle.equipLeft()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					end
-				elseif string.match(ItemDetail.name, "crafting_table") ~= nil then
-					Profession="crafty"
+					break
+				elseif namestring == "crafting_table" then
+					print("Found a " .. ItemDetail.name .. " in slot " .. i)
+					Profession = "crafty"
+					print("Profession: " .. Profession)
 					turtle.select(i)
 					if peripheral.ispresent("right") and not peripheral.ispresent("left") then
 						Status, Reason = turtle.equipRight()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					elseif peripheral.isPresent("left") and not peripheral.ispresent("right") then
 						Status, Reason = turtle.equipLeft()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					end
-				elseif string.match(ItemDetail.name, "axe") ~= nil then
+					break
+				elseif namestring == "diamond_axe" then
+					print("Found a " .. ItemDetail.name .. " in slot " .. i)
 					Profession = "felling"
+					print("Profession: " .. Profession)
 					turtle.select(i)
 					if peripheral.ispresent("right") and not peripheral.ispresent("left") then
 						Status, Reason = turtle.equipRight()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					elseif peripheral.isPresent("left") and not peripheral.ispresent("right") then
 						Status, Reason = turtle.equipLeft()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					end
-				elseif string.match(ItemDetail.name, "hoe") ~= nil then
+					break
+				elseif namestring == "diamond_hoe" then
+					print("Found a " .. ItemDetail.name .. " in slot " .. i)
 					Profession = "farming"
+					print("Profession: " .. Profession)
 					turtle.select(i)
 					if peripheral.ispresent("right") and not peripheral.ispresent("left") then
 						Status, Reason = turtle.equipRight()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					elseif peripheral.isPresent("left") and not peripheral.ispresent("right") then
 						Status, Reason = turtle.equipLeft()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					end
-				elseif string.match(ItemDetail.name, "pickaxe") ~= nil then
+					break
+				elseif namestring == "diamond_pickaxe" then
+					print("Found a " .. ItemDetail.name .. " in slot " .. i)
 					Profession = "mining"
+					print("Profession: " .. Profession)
 					turtle.select(i)
 					if peripheral.ispresent("right") and not peripheral.ispresent("left") then
 						Status, Reason = turtle.equipRight()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					elseif peripheral.isPresent("left") and not peripheral.ispresent("right") then
 						Status, Reason = turtle.equipLeft()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					end
-				elseif string.match(ItemDetail.name, "sword") ~= nil then
-					Profession="melee"
+					break
+				elseif namestring == "diamond_sword" then
+					print("Found a " .. ItemDetail.name .. " in slot " .. i)
+					Profession = "melee"
+					print("Profession: " .. Profession)
 					turtle.select(i)
 					if peripheral.ispresent("right") and not peripheral.ispresent("left") then
 						Status, Reason = turtle.equipRight()
 						if not Status then
 							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					elseif peripheral.isPresent("left") and not peripheral.ispresent("right") then
 						Status, Reason = turtle.equipLeft()
-						if not Status then print(Reason)
+						if not Status then
+							print(Reason)
+						else
+							Tool.present = true
+							print("Tool Present: " .. tostring(Tool.present))
+							Tool.side = "right"
+							print("Tool Side: " .. Tool.side)
+							Tool.name = ItemDetail.name
+							print("Tool Name: " .. Tool.name)
 						end
 					end
 				end
 			end
 		end
-		os.setComputerLabel(Label .. " " .. tostring(ID))
+		print("Tool Present: " .. tostring(Tool.present))
+		print("Tool Side: " .. Tool.side)
+		print("Tool Name: " .. Tool.name)
+		os.setComputerLabel(Profession .. " | " .. tostring(ID))
 		print("Label: " .. Label)
 		--Join Network
 		assert(Modem.isWireless, "We cant work with a wired Modem, replace it with a Whireless Modem!")
@@ -135,16 +252,21 @@ function Setup()
 		Modem.transmit("Device " .. Label .. "(" .. ID .. ")" .. " joined the Broadcast Network!")
 		print("Joined Broadcast Network " .. BroadcastNetwork)
 		--Broadcast Setup Summary
-		TurtleMetaData = {["type"] = "Turtle", ["label"] = Label, ["modem"] = { ["present"] = Modem.present, ["side"] = Modem.side }, ["profession"] = Profession, ["setup_complete"] = SetupComplete }
-		Packet = {["source"] = ID, ["destination"] = "server", ["data"] = TurtleMetaData, ["type"] = "setup-notice"}
+		TurtleMetaData = { ["type"] = "Turtle", ["label"] = Label,
+			["modem"] = { ["present"] = Modem.present, ["side"] = Modem.side }, ["profession"] = Profession,
+			["setup_complete"] = SetupComplete }
+		Packet = { ["source"] = ID, ["destination"] = "server", ["data"] = TurtleMetaData, ["type"] = "setup-notice" }
 		SerializedPacket = textutils.serializeJSON(Packet)
 		http.get(SerializedPacket)
 	else
 		--Placeholder
 	end
 end
+
 function Preperations() end
+
 function Main() end
+
 OK, Error = pcall(function()
 	Setup()
 	--Preperations()

@@ -12,6 +12,7 @@
 		"write",
 		"read",
 		"sleep",
-		"shell"
+		"shell",
+		"printError"
 	]
 }

@@ -10,16 +10,10 @@ var pockets = require("./PocketData.json")
 WebSocket.on("connection", WSClient => {
 	console.log("Incoming Connection!")
 	WSClient.on("message", serializedrequest => {
-		var request
-		if (typeof serializedrequest == "string") {
-			request = JSON.parse(serializedrequest)
-		} else {
-			request = serializedrequest
-		}
+		var request = JSON.parse(serializedrequest)
 		var id = request.source
 		switch (request.type) {
 			case "self-request":
-				console.debug(request)
 				//console.log("Received Message Type " + JSON.stringify(request.type) + " from " + JSON.stringify(request.source) + " : " + JSON.stringify(request.data))
 				var response = {["source"]:"server",["destination"]:id.toString(),["data"]:"",["type"]:"self-request-report"}
 				var serializedresponse = JSON.stringify(response)

@@ -1,2 +1,2 @@
-const websocket = require("./websocket.js")
-const webserver = require("./webserver.js")
+var WebSocket = require("./WebSocket.js")
+var WebServer = require("./WebServer.js")

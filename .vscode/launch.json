@@ -7,29 +7,11 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Web Socket",
+			"name": "Launch Servers",
 			"skipFiles": [
 				"<node_internals>/**"
 			],
-			"program": "${workspaceFolder}\\server\\websocket.js"
-		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "Launch Web Server",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}\\server\\webserver.js"
-		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "Launch Both",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}\\launch.js"
+			"program": "${workspaceFolder}\\Launch.js"
 		}
 	]
 }

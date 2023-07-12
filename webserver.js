@@ -1,34 +1,47 @@
+const path = require("path");
 const http = require("http")
 const fs = require("fs")
+const HOSTNAME = "127.0.0.1"
+const PORT = 3001;
 
-const hostname = "127.0.0.1"
-const port = 3001
+const MIME_TYPES = {
+	default: "application/octet-stream",
+	html: "text/html; charset=UTF-8",
+	js: "application/javascript",
+	css: "text/css",
+	png: "image/png",
+	jpg: "image/jpg",
+	gif: "image/gif",
+	ico: "image/x-icon",
+	svg: "image/svg+xml",
+	json: "application/json "
+};
 
-const server = http.createServer((req, res) => {
-	res.writeHead(200, {"content-type": "text/html"})
-	fs.createReadStream("server/webserver.html").pipe(res)
+const STATIC_PATH = path.join(process.cwd(), "./");
+
+const toBool = [() => true, () => false];
+
+const prepareFile = async (url) => {
+	const paths = [STATIC_PATH, url];
+	if (url.endsWith("/")) paths.push("WebServer.html");
+	const filePath = path.join(...paths);
+	const pathTraversal = !filePath.startsWith(STATIC_PATH);
+	const exists = await fs.promises.access(filePath).then(...toBool);
+	const found = !pathTraversal && exists;
+	const streamPath = found ? filePath : STATIC_PATH + "/404.html";
+	const ext = path.extname(streamPath).substring(1).toLowerCase();
+	const stream = fs.createReadStream(streamPath);
+	return { found, ext, stream };
+};
+
+http.createServer(async (req, res) => {
+	const file = await prepareFile(req.url);
+	const statusCode = file.found ? 200 : 404;
+	const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
+	res.writeHead(statusCode, { "Content-Type": mimeType });
+	file.stream.pipe(res);
+	console.log(`Web Server: [${req.socket.remoteAddress}:${req.socket.remotePort}] ${req.method} ${req.url} ${statusCode}`);
 })
+	.listen(PORT, HOSTNAME);
 
-server.listen(port, hostname, () => {
-	console.log("Web Server running at http://" + hostname + ":" + port + "/")
-})
-
-function GetHeight() {}
-
-function Box() {}
-
-function ParseBlockID(BlockID) {
-	var parsed = {
-		source : "",
-		material : "",
-		variant : ""
-	}
-	if (BlockID.includes(":") && BlockID("_")) {
-		parsed.source = BlockID.slice(0, BlockID.indexOf(":")-1)
-		return parsed
-	}
-	else {
-		return "Invalid Block ID"
-	}
-
-}
+console.log(`Web Server running at http://${HOSTNAME}:${PORT}/`);

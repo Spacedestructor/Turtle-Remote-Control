@@ -14,5 +14,8 @@
 		"sleep",
 		"shell",
 		"printError"
+	],
+	"Lua.diagnostics.disable": [
+		"undefined-field"
 	]
 }

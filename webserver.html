@@ -1,13 +1,155 @@
 <!DOCTYPE html>
+
 <head>
 	<title>Turtle Remote Control</title>
-	<style>div.controls {background-color:#282828;color:white}</style>
-	<script type="text/css" src="webserver.js"></script>
+	<style>
+		body {
+			background-color: #282828;
+			color: white;
+		}
+
+		div#Container {
+			width: 100%;
+			height: 100%;
+		}
+
+		nav#Top {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			height: 25%;
+			width: 100%;
+		}
+
+		section#Left {
+			position: absolute;
+			top: 25%;
+			left: 0px;
+			height: 25%;
+			width: 75%;
+		}
+
+		aside#Right {
+			position: absolute;
+			top: 25%;
+			left: 75%;
+			height: 25%;
+			width: 25%;
+		}
+
+		footer#Bottom {
+			position: absolute;
+			top: 75%;
+			left: 0px;
+			height: 50%;
+			width: 100%;
+		}
+	</style>
+	<script>
+		var Websocket
+		var Turtles
+		function FormatDate() {
+			var date = new Date()
+			var day = date.getDate()
+			var month = date.getMonth() + 1
+			var year = date.getFullYear()
+			var hours = date.getHours()
+			var minutes = date.getMinutes()
+			var seconds = date.getSeconds()
+			var dateformatted = `${day}.${month}.${year}-${hours}:${minutes}:${seconds}`
+			return dateformatted
+		}
+		function ConnectToWebsocket() {
+			Websocket = new WebSocket(`ws://${document.getElementById("ConnectToWebsocketInput").value}`)
+			Websocket.onopen = function () {
+				console.log("Websocket connection open.")
+				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] Websocket connection open.</div>`
+			}
+			Websocket.onclose = function () {
+				document.getElementById("ConnectToWebsocketButton").disabled = false
+			}
+			Websocket.onerror = function (event) {
+				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] An Error has occured, the Details are available in the Logs!</div>`
+				console.error(event)
+			}
+		}
+		function GetInventory() {
+			var Packet = { ["source"]: "server", ["destination"]: "turtle", ["data"]: "GetInventory", ["type"]: "instruction" }
+			var SerializedPacket = JSON.stringify(Packet)
+			Websocket.send(SerializedPacket)
+			var inventory = [slots = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]]
+			res = ""
+			Websocket.onmessage = function (event) {
+				res = event.data
+			}
+		}
+		function SelectTurtle() {
+			console.log("function SelectTurtle()")
+			var ID = document.getElementById("TurtleDropDown").value
+			console.log("Turtle ID: " + ID)
+			document.getElementById("TurtleID").innerText = "Turtle ID: " + ID
+			var Packet = { ["source"]: "server", ["destination"]: "server", ["data"]: ID, ["type"]: "GetTurtleData" }
+			var SerializedPacket = JSON.stringify(Packet)
+			Websocket.send(SerializedPacket)
+			Websocket.onmessage = function (event) {
+				var response = event
+				console.log(response)
+				//var CurrentFuel = ""
+				//console.log("Current Fuel: ")
+				//document.getElementById("FuelLevelDisplay").innerText = "Fuel: "
+			}
+		}
+		function GetProfession() { }
+	</script>
+	<link type="text/css" src="Server.css">
 </head>
+
 <body>
-	<div class="controls">
-		<p>Welcome to the Turtle Remote Control Web server by Spacedestructor. This is currently WIP.</p>
-	</div>
-	<div class="viewport">
+	<div id="Container">
+		<nav id="Top">
+			<p>Welcome to the Turtle Remote Control Web Server by Spacedestructor. This is currently WIP.</p>
+			<div id="ConnectToWebsocket">
+				<input id="ConnectToWebsocketInput" value="127.0.0.1:3000"><button id="ConnectToWebsocketButton" autocomplete="off"
+					onclick="ConnectToWebsocket()">Connect to Websocket</button>
+				<p>Example: 127.0.0.1:3000 (Default IP and Port but this only works if the Websocket is Hosted on your
+					Device.)</p>
+			</div>
+		</nav>
+		<section id="Left">
+			<div id="Controls">
+				<div id="Buttons">
+					<button id="MaxFuelLevelButton" autocomplete="off" onclick="GetMaxFuelLevel()">Get Max Fuel
+						Level</button>
+					<button id="CurrentFuelLevelButton" autocomplete="off" onclick="GetCurrentFuelLevel()">Get Current
+						Fuel Level</button>
+					<button id="RefuelButton" autocomplete="off" onclick="Refuel()">Refuel</button>
+					<button id="GetInventoryButton" autocomplete="off" onclick="GetInventory()">Get Inventory</button>
+				</div>
+				<div id="Ui">
+					<div id="Turtle">
+						<div>
+							<p>Select which Turtle to control:</p>
+							<select id="TurtleDropDown">
+								<option value="0">Turtle ID 0</option>
+							</select>
+							<button id="TurtleDropDownButton" onclick="SelectTurtle()">confirm</button>
+						</div>
+						<div id="TurtleID">ID: </div>
+						<div id="FuelLevelDisplay">Fuel: </div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<aside id="Right">
+			<div id="Log">
+				<p>Log:</p>
+				<div></div>
+			</div>
+		</aside>
+		<footer id="Bottom">
+			<div id="Viewport">
+				Viewpoert
+			</div>
+		</footer>
 	</div>
 </body>

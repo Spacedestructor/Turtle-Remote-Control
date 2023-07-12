@@ -2,7 +2,7 @@
   "name": "turtle-remote-control",
   "version": "1.0.0",
   "description": "Lets you Remote Control Minecraft Turtles from the Computercraft/ComputerCraft Tweaked Mod.",
-  "main": "webserver/webserver.js",
+  "main": "webserver/Server.js",
   "scripts": {
     "test": "test"
   },

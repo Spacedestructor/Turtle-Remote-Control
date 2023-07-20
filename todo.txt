@@ -1,2 +1,3 @@
-server relaying communication between turtle and computer.
-web rendering of block data.
+Web Socket relaying communication between turtle and website.
+web rendering of block and device data.
+{ ["source"]: "", ["destination"]: "", ["data"]: "", ["type"]: "", ["forward-from"]: "", ["forward-to"]: "", ["type"]: "" }

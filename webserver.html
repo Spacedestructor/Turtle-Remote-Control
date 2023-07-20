@@ -64,6 +64,9 @@
 			Websocket.onopen = function () {
 				console.log("Websocket connection open.")
 				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] Websocket connection open.</div>`
+				var packet = { ["source"]: "client", ["destination"]: "server", ["type"]: "Identify" }
+				packet = JSON.stringify(packet)
+				Websocket.send(packet)
 			}
 			Websocket.onclose = function () {
 				document.getElementById("ConnectToWebsocketButton").disabled = false
@@ -72,31 +75,67 @@
 				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] An Error has occured, the Details are available in the Logs!</div>`
 				console.error(event)
 			}
+			Websocket.onmessage = function (event) {
+				var response = event.data
+				var response = JSON.parse(response)
+				var UUID = response.data
+				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>UUID Recieved: ${UUID}</div>`
+			}
 		}
 		function GetInventory() {
 			var Packet = { ["source"]: "server", ["destination"]: "turtle", ["data"]: "GetInventory", ["type"]: "instruction" }
 			var SerializedPacket = JSON.stringify(Packet)
 			Websocket.send(SerializedPacket)
 			var inventory = [slots = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]]
-			res = ""
 			Websocket.onmessage = function (event) {
-				res = event.data
+				response = event.data
 			}
 		}
 		function SelectTurtle() {
-			console.log("function SelectTurtle()")
+			console.debug("function SelectTurtle()")
 			var ID = document.getElementById("TurtleDropDown").value
-			console.log("Turtle ID: " + ID)
-			document.getElementById("TurtleID").innerText = "Turtle ID: " + ID
-			var Packet = { ["source"]: "server", ["destination"]: "server", ["data"]: ID, ["type"]: "GetTurtleData" }
+			console.debug(`Turtle ID: ${ID}`)
+			document.getElementById("TurtleID").innerText = `Turtle ID: ${ID} `
+			var Packet = { ["source"]: "server", ["destination"]: "server", ["data"]: ID, ["type"]: "GetDeviceData", ["forward-from"]: "", ["forward-to"]: "", ["type"]: "" }
 			var SerializedPacket = JSON.stringify(Packet)
 			Websocket.send(SerializedPacket)
 			Websocket.onmessage = function (event) {
-				var response = event
-				console.log(response)
-				//var CurrentFuel = ""
-				//console.log("Current Fuel: ")
-				//document.getElementById("FuelLevelDisplay").innerText = "Fuel: "
+				var response = event.data
+				response = JSON.parse(response)
+				response = response.data
+				console.debug(response)
+				var label = response.label
+				console.debug(`Label: ${label}`)
+				document.getElementById("TurtleLabel").innerText = `Turtle Label: ${label} `
+				var profession = response.profession
+				console.debug(`Profession: ${profession}`)
+				document.getElementById("TurtleProfession").innerText = `Turtle Profession: ${profession} `
+				var tool = response.tool
+				console.debug(`Tool: ${tool}`)
+				document.getElementById("TurtleTool").innerText = `Turtle Tool: ${tool} `
+				var modem = {
+					"side": response.modem.side,
+					"present": response.modem.present,
+					"type": response.modem.type
+				}
+				console.debug(`Modem Side: ${modem.side}`)
+				console.debug(`Modem Present: ${modem.present}`)
+				console.debug(`Modem Type: ${modem.type}`)
+				document.getElementById("TurtleModem").innerText = `Turtle Modem: ${modem.type} `
+				var broadcastNetwork = response.broadcastNetwork
+				console.debug(`Broadcast Network: ${broadcastNetwork}`)
+				document.getElementById("TurtleBroadcastNetwork").innerText = `Turtle Broadcast Network: ${broadcastNetwork} `
+				var fuel = {
+					"max": response.fuel.max,
+					"current": response.fuel.current,
+					"name": response.fuel.name,
+					"fuelPerItem": response.fuel.fuelPerItem
+				}
+				console.debug(`Fuel Max: ${fuel.max}`)
+				console.debug(`Fuel Current: ${fuel.current}`)
+				console.debug(`Fuel Name: ${fuel.name}`)
+				console.debug(`Fuel per Item: ${fuel.fuelPerItem}`)
+				document.getElementById("TurtleFuel"). innerText = `Turtle Fuel: ${fuel.current}/${fuel.max} (${fuel.fuelPerItem} per ${fuel.name})`
 			}
 		}
 		function GetProfession() { }
@@ -109,8 +148,8 @@
 		<nav id="Top">
 			<p>Welcome to the Turtle Remote Control Web Server by Spacedestructor. This is currently WIP.</p>
 			<div id="ConnectToWebsocket">
-				<input id="ConnectToWebsocketInput" value="127.0.0.1:3000"><button id="ConnectToWebsocketButton" autocomplete="off"
-					onclick="ConnectToWebsocket()">Connect to Websocket</button>
+				<input id="ConnectToWebsocketInput" value="127.0.0.1:3000"><button id="ConnectToWebsocketButton"
+					autocomplete="off" onclick="ConnectToWebsocket()">Connect to Websocket</button>
 				<p>Example: 127.0.0.1:3000 (Default IP and Port but this only works if the Websocket is Hosted on your
 					Device.)</p>
 			</div>
@@ -126,16 +165,43 @@
 					<button id="GetInventoryButton" autocomplete="off" onclick="GetInventory()">Get Inventory</button>
 				</div>
 				<div id="Ui">
-					<div id="Turtle">
-						<div>
-							<p>Select which Turtle to control:</p>
+					<div>
+						<p>Select which Turtle to control:</p>
+						<span id="Turtle">
 							<select id="TurtleDropDown">
 								<option value="0">Turtle ID 0</option>
 							</select>
 							<button id="TurtleDropDownButton" onclick="SelectTurtle()">confirm</button>
-						</div>
-						<div id="TurtleID">ID: </div>
-						<div id="FuelLevelDisplay">Fuel: </div>
+							<span id="TurtleID">ID: </span>
+							<span id="TurtleLabel">Label: </span>
+							<span id="TurtleProfession">Profession: </span>
+							<span id="TurtleFuel">Fuel: </span>
+							<span id="TurtleTool">Tool: </span>
+							<span id="TurtleModem">Modem: </span>
+							<span id="TurtleBroadcastNetwork">Broadcast Network: </span>
+						</span>
+						<p>Select which Computer to control:</p>
+						<span id="Computer">
+							<select id="ComputerDropDown">
+								<option value="1">Computer ID 1</option>
+							</select>
+							<button id="ComputerDropDownButton">Confirm</button>
+							<span id="ComputerID">ID: </span>
+							<span id="ComputerLabel">Label: </span>
+							<span id="ComputerModem">Modem: </span>
+							<span id="ComputerBroadcastNetwork">Broadcast Network: </span>
+						</span>
+						<p>Select which Pocket to control:</p>
+						<span id="Pocket">
+							<select id="PocketDropDown">
+								<option value="2">Pocket ID 2</option>
+							</select>
+							<button id="PocketDropDownButton">Confirm</button>
+							<span id="PocketID">ID: </span>
+							<span id="PocketLabel">Label: </span>
+							<span id="PocketModem">Modem: </span>
+							<span id="PocketBroadcastNetwork">Broadcast Network: </span>
+						</span>
 					</div>
 				</div>
 			</div>

@@ -155,7 +155,7 @@ webSocket.on("connection", (wsClient, wsRequest) => {
 		HandlePackets(serializedRequest, wsClient, wsRequest)
 	})
 	wsClient.on("close", (event) => {
-		console.info(`Web Socket: Connection to ${ip}:${port} Terminated!`)
+		console.info(`Web Socket: Connection to ${wsRequest.socket.remoteAddress}:${wsRequest.socket.remotePort} Terminated!`)
 	})
 })
 console.info(`Web Socket Running at http://${hostName}:${hostPort}`)

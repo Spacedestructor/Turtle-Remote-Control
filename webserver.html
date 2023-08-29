@@ -4,143 +4,52 @@
 	<title>Turtle Remote Control</title>
 	<style>
 		body {
+			resize: none;
 			background-color: #282828;
 			color: white;
 		}
 
 		div#Container {
-			width: 100%;
-			height: 100%;
+			max-width: 100%;
+			max-height: 100%;
 		}
 
 		nav#Top {
 			position: absolute;
 			top: 0px;
 			left: 0px;
-			height: 25%;
-			width: 100%;
+			max-height: 25%;
+			max-width: 100%;
 		}
 
 		section#Left {
 			position: absolute;
 			top: 25%;
 			left: 0px;
-			height: 25%;
-			width: 75%;
+			max-height: 25%;
+			max-width: 75%;
 		}
 
 		aside#Right {
 			position: absolute;
 			top: 25%;
 			left: 75%;
-			height: 25%;
-			width: 25%;
+			max-height: 25%;
+			max-width: 25%;
+		}
+
+		div#LogTitle {
+			text-align: center;
 		}
 
 		footer#Bottom {
 			position: absolute;
 			top: 75%;
 			left: 0px;
-			height: 50%;
-			width: 100%;
+			max-height: 50%;
+			max-width: 100%;
 		}
 	</style>
-	<script>
-		var Websocket
-		var Turtles
-		function FormatDate() {
-			var date = new Date()
-			var day = date.getDate()
-			var month = date.getMonth() + 1
-			var year = date.getFullYear()
-			var hours = date.getHours()
-			var minutes = date.getMinutes()
-			var seconds = date.getSeconds()
-			var dateformatted = `${day}.${month}.${year}-${hours}:${minutes}:${seconds}`
-			return dateformatted
-		}
-		function ConnectToWebsocket() {
-			Websocket = new WebSocket(`ws://${document.getElementById("ConnectToWebsocketInput").value}`)
-			Websocket.onopen = function () {
-				console.log("Websocket connection open.")
-				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] Websocket connection open.</div>`
-				var packet = { ["source"]: "client", ["destination"]: "server", ["type"]: "Identify" }
-				packet = JSON.stringify(packet)
-				Websocket.send(packet)
-			}
-			Websocket.onclose = function () {
-				document.getElementById("ConnectToWebsocketButton").disabled = false
-			}
-			Websocket.onerror = function (event) {
-				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] An Error has occured, the Details are available in the Logs!</div>`
-				console.error(event)
-			}
-			Websocket.onmessage = function (event) {
-				var response = event.data
-				var response = JSON.parse(response)
-				var UUID = response.data
-				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>UUID Recieved: ${UUID}</div>`
-			}
-		}
-		function GetInventory() {
-			var Packet = { ["source"]: "server", ["destination"]: "turtle", ["data"]: "GetInventory", ["type"]: "instruction" }
-			var SerializedPacket = JSON.stringify(Packet)
-			Websocket.send(SerializedPacket)
-			var inventory = [slots = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]]
-			Websocket.onmessage = function (event) {
-				response = event.data
-			}
-		}
-		function SelectTurtle() {
-			console.debug("function SelectTurtle()")
-			var ID = document.getElementById("TurtleDropDown").value
-			console.debug(`Turtle ID: ${ID}`)
-			document.getElementById("TurtleID").innerText = `Turtle ID: ${ID} `
-			var Packet = { ["source"]: "server", ["destination"]: "server", ["data"]: ID, ["type"]: "GetDeviceData", ["forward-from"]: "", ["forward-to"]: "", ["type"]: "" }
-			var SerializedPacket = JSON.stringify(Packet)
-			Websocket.send(SerializedPacket)
-			Websocket.onmessage = function (event) {
-				var response = event.data
-				response = JSON.parse(response)
-				response = response.data
-				console.debug(response)
-				var label = response.label
-				console.debug(`Label: ${label}`)
-				document.getElementById("TurtleLabel").innerText = `Turtle Label: ${label} `
-				var profession = response.profession
-				console.debug(`Profession: ${profession}`)
-				document.getElementById("TurtleProfession").innerText = `Turtle Profession: ${profession} `
-				var tool = response.tool
-				console.debug(`Tool: ${tool}`)
-				document.getElementById("TurtleTool").innerText = `Turtle Tool: ${tool} `
-				var modem = {
-					"side": response.modem.side,
-					"present": response.modem.present,
-					"type": response.modem.type
-				}
-				console.debug(`Modem Side: ${modem.side}`)
-				console.debug(`Modem Present: ${modem.present}`)
-				console.debug(`Modem Type: ${modem.type}`)
-				document.getElementById("TurtleModem").innerText = `Turtle Modem: ${modem.type} `
-				var broadcastNetwork = response.broadcastNetwork
-				console.debug(`Broadcast Network: ${broadcastNetwork}`)
-				document.getElementById("TurtleBroadcastNetwork").innerText = `Turtle Broadcast Network: ${broadcastNetwork} `
-				var fuel = {
-					"max": response.fuel.max,
-					"current": response.fuel.current,
-					"name": response.fuel.name,
-					"fuelPerItem": response.fuel.fuelPerItem
-				}
-				console.debug(`Fuel Max: ${fuel.max}`)
-				console.debug(`Fuel Current: ${fuel.current}`)
-				console.debug(`Fuel Name: ${fuel.name}`)
-				console.debug(`Fuel per Item: ${fuel.fuelPerItem}`)
-				document.getElementById("TurtleFuel"). innerText = `Turtle Fuel: ${fuel.current}/${fuel.max} (${fuel.fuelPerItem} per ${fuel.name})`
-			}
-		}
-		function GetProfession() { }
-	</script>
-	<link type="text/css" src="Server.css">
 </head>
 
 <body>
@@ -148,74 +57,480 @@
 		<nav id="Top">
 			<p>Welcome to the Turtle Remote Control Web Server by Spacedestructor. This is currently WIP.</p>
 			<div id="ConnectToWebsocket">
-				<input id="ConnectToWebsocketInput" value="127.0.0.1:3000"><button id="ConnectToWebsocketButton"
-					autocomplete="off" onclick="ConnectToWebsocket()">Connect to Websocket</button>
+				<input id="ConnectToWebsocketInput" value="127.0.0.1:3000">
+				<button id="ConnectToWebsocketButton" autocomplete="off" onclick="ConnectToWebsocket()">Connect to
+					Websocket</button>
+				<button id="DiconnectFromWebsocketButton" autocomplete="off"
+					onclick="DisconnectFromWebsocket()">Disconnect from Websocket</button>
 				<p>Example: 127.0.0.1:3000 (Default IP and Port but this only works if the Websocket is Hosted on your
 					Device.)</p>
 			</div>
+			<div id="UserData"></div>
 		</nav>
 		<section id="Left">
 			<div id="Controls">
 				<div id="Buttons">
-					<button id="MaxFuelLevelButton" autocomplete="off" onclick="GetMaxFuelLevel()">Get Max Fuel
-						Level</button>
-					<button id="CurrentFuelLevelButton" autocomplete="off" onclick="GetCurrentFuelLevel()">Get Current
-						Fuel Level</button>
-					<button id="RefuelButton" autocomplete="off" onclick="Refuel()">Refuel</button>
-					<button id="GetInventoryButton" autocomplete="off" onclick="GetInventory()">Get Inventory</button>
+					<p id="Devices">
+					<div>
+						<p>Select which Device to control:</p>
+						<select id="DeviceDropDown"></select>
+						<button id="DeviceDropDownDisplayButton" onclick="SelectDevice()"
+							autocomplete="off">Show</button>
+						<button id="DeviceDropDownRefreshButton" onclick="GetDeviceData(302)"
+							autocomplete="off">Refresh</button>
+					</div>
+					</p>
+					<button id="DeviceTypeButton" autocomplete="off" onclick="GetDeviceData(303)">Get Device
+						Type</button>
+					<button id="DeviceLabelButton" autocomplete="off" onclick="GetDeviceData(304)">Get Device
+						Label</button>
+					<button id="DeviceFuelButton" autocomplete="off" onclick="GetDeviceData(305)">Get Device
+						Fuel</button>
+					<button id="DeviceModemButton" autocomplete="off" onclick="GetDeviceData(306)">Get Device
+						Modem</button>
+					<button id="DeviceToolButton" autocomplete="off" onclick="GetDeviceData(307)">Get Device
+						Tool</button>
+					<button id="DeviceBroadcastNetworkButton" autocomplete="off" onclick="GetDeviceData(308)">Get Device
+						Broadcast Network</button>
 				</div>
 				<div id="Ui">
-					<div>
-						<p>Select which Turtle to control:</p>
-						<span id="Turtle">
-							<select id="TurtleDropDown">
-								<option value="0">Turtle ID 0</option>
-							</select>
-							<button id="TurtleDropDownButton" onclick="SelectTurtle()">confirm</button>
-							<span id="TurtleID">ID: </span>
-							<span id="TurtleLabel">Label: </span>
-							<span id="TurtleProfession">Profession: </span>
-							<span id="TurtleFuel">Fuel: </span>
-							<span id="TurtleTool">Tool: </span>
-							<span id="TurtleModem">Modem: </span>
-							<span id="TurtleBroadcastNetwork">Broadcast Network: </span>
-						</span>
-						<p>Select which Computer to control:</p>
-						<span id="Computer">
-							<select id="ComputerDropDown">
-								<option value="1">Computer ID 1</option>
-							</select>
-							<button id="ComputerDropDownButton">Confirm</button>
-							<span id="ComputerID">ID: </span>
-							<span id="ComputerLabel">Label: </span>
-							<span id="ComputerModem">Modem: </span>
-							<span id="ComputerBroadcastNetwork">Broadcast Network: </span>
-						</span>
-						<p>Select which Pocket to control:</p>
-						<span id="Pocket">
-							<select id="PocketDropDown">
-								<option value="2">Pocket ID 2</option>
-							</select>
-							<button id="PocketDropDownButton">Confirm</button>
-							<span id="PocketID">ID: </span>
-							<span id="PocketLabel">Label: </span>
-							<span id="PocketModem">Modem: </span>
-							<span id="PocketBroadcastNetwork">Broadcast Network: </span>
-						</span>
+					<div id="MainDeviceControl">
+						<p>Device Data:</p>
+						<span id="DeviceID"></span>
+						<span id="DeviceType"></span>
+						<span id="DeviceLabel"></span>
+						<span id="DeviceProfession"></span>
+						<span id="DeviceFuel"></span>
+						<span id="DeviceTool"></span>
+						<span id="DeviceModem"></span>
+						<span id="DeviceBroadcastNetwork"></span>
+					</div>
+					<div id="SecondaryDeviceControl">
+						<div>
+							<div id="DeviceList">Known Devices: </div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</section>
 		<aside id="Right">
 			<div id="Log">
-				<p>Log:</p>
-				<div></div>
+				<div id="LogTitle">Log: </div>
 			</div>
 		</aside>
 		<footer id="Bottom">
 			<div id="Viewport">
-				Viewpoert
+				Viewport
 			</div>
 		</footer>
 	</div>
+	<script>
+		document.getElementById("DiconnectFromWebsocketButton").disabled = true
+		document.getElementById("DeviceDropDown").disabled = true
+		document.getElementById("DeviceDropDownDisplayButton").disabled = true
+		document.getElementById("DeviceDropDownRefreshButton").disabled = true
+		document.getElementById("DeviceTypeButton").disabled = true
+		document.getElementById("DeviceLabelButton").disabled = true
+		document.getElementById("DeviceFuelButton").disabled = true
+		document.getElementById("DeviceModemButton").disabled = true
+		document.getElementById("DeviceToolButton").disabled = true
+		document.getElementById("DeviceBroadcastNetworkButton").disabled = true
+		var Websocket
+		var identity = { uuid: "", ip: "", port: "" }
+		var Devices = []
+		var deviceID
+		function FormatDate() {
+			var date = new Date()
+			var day = date.getDate()
+			if (day <= 9) { day = parseInt("0" + day) }
+			var month = date.getMonth() + 1
+			if (month <= 9) { month = parseInt("0" + month) }
+			var year = date.getFullYear()
+			var hours = date.getHours()
+			if (hours <= 9) { hours = parseInt("0" + hours) }
+			var minutes = date.getMinutes()
+			if (minutes <= 9) { minutes = parseInt("0" + minutes) }
+			var seconds = date.getSeconds()
+			if (seconds <= 9) { seconds = parseInt("0" + seconds) }
+			var dateformatted = `${day}.${month}.${year}-${hours}:${minutes}:${seconds}`
+			return dateformatted
+		}
+		//Returns True if operation succeeded, false if it failed.
+		function WriteToLog(string) {
+			try {
+				document.getElementById("Log").innerHTML = document.getElementById("Log").innerHTML + `<div>[${FormatDate()}] ${string}</div>`
+				return true
+			} catch (error) {
+				console.error("Error: ", error)
+				return false
+			}
+		}
+		function SelectDevice() {
+			deviceID = document.getElementById("DeviceDropDown").value
+			var device = Devices[deviceID]
+			document.getElementById("DeviceID").innerText = `ID: ${device.id}`
+			document.getElementById("DeviceID").hidden = false
+			document.getElementById("DeviceType").innerText = `Type: ${device.type}`
+			document.getElementById("DeviceType").hidden = false
+			document.getElementById("DeviceLabel").innerText = `Label: ${device.label}`
+			document.getElementById("DeviceLabel").innerText = `Label: ${device.label}`
+			switch (device.type) {
+				case "Turtle":
+					document.getElementById("DeviceFuel").innerText = `Fuel: ${device.fuel.current}/${device.fuel.max} (${device.fuel.perItem} per ${device.fuel.name})`
+					document.getElementById("DeviceTool").innerText = `Tool: ${device.tool}`
+					document.getElementById("DeviceProfession").innerText = `Profession: ${device.profession}`
+					document.getElementById("DeviceModem").innerText = `Modem: ${device.modem}`
+					break
+				case "Computer":
+					document.getElementById("DeviceFuel").innerText = ``
+					document.getElementById("DeviceTool").innerText = ``
+					document.getElementById("DeviceProfession").innerText = ``
+					document.getElementById("DeviceModem").innerText = `Modem: ${device.modem}`
+					break
+				case "Pocket":
+					document.getElementById("DeviceFuel").innerText = ``
+					document.getElementById("DeviceTool").innerText = ``
+					document.getElementById("DeviceProfession").innerText = ``
+					document.getElementById("DeviceModem").innerText = ``
+					break
+			}
+			document.getElementById("DeviceBroadcastNetwork").innerText = `Broadcast Network: ${device.broadcastNetwork}`
+		}
+		function GetDeviceData(code) {
+			switch (code) {
+				case 301: //Request all Devices we have access to.
+					var packet = { ["code"]: code }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					document.getElementById("DeviceDropDown").disabled = true
+					document.getElementById("DeviceDropDownDisplayButton").disabled = false
+					document.getElementById("DeviceDropDownRefreshButton").disabled = false
+					document.getElementById("DeviceTypeButton").disabled = false
+					document.getElementById("DeviceLabelButton").disabled = false
+					document.getElementById("DeviceFuelButton").disabled = false
+					document.getElementById("DeviceModemButton").disabled = false
+					document.getElementById("DeviceToolButton").disabled = false
+					document.getElementById("DeviceBroadcastNetworkButton").disabled = false
+					break
+				case 302: //Request all Data of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+				case 303: //Request Type of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+				case 304: //Request Label of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+				case 305: //Request Fuel of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+				case 306: //Request Modem of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+				case 307: //Request Tool of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+				case 308: //Request Broadcast Network of a specific Device.
+					var packet = { ["code"]: code, ["data"]: deviceID }
+					var serializedPacket = JSON.stringify(packet)
+					Websocket.send(serializedPacket)
+					break
+			}
+		}
+		function HandlePackets(serializedPacket) {
+			var packet = JSON.parse(serializedPacket)
+			var code = packet.code
+			console.debug(`[HandlePackets(${code})] Packet Recieved: ${serializedPacket}`)
+			WriteToLog(`Packet Recieved: ${serializedPacket}`)
+			var data = packet.data
+			switch (code) {
+				case 100: //Identification Data recieved from The Web-socket.
+					identity.uuid = data.uuid
+					identity.ip = data.ip
+					identity.port = data.port
+					WriteToLog(`Identity Recieved: ${identity.uuid} - ${identity.ip}:${identity.port}`)
+					document.getElementById("UserData").innerHTML = `<div>Username: ${identity.username}, User ID: ${identity.userid}</div>`
+					document.getElementById("UserData").innerHTML = document.getElementById("UserData").innerHTML + `<div>UUID: ${identity.uuid}, IP: ${identity.ip}, Port: ${identity.port}</div>`
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					GetDeviceData(301)
+					break
+				case 301: //Recieved Data of all Devices.
+					Devices = data
+					console.debug(`[HandlePackets(${code})] Devices: `, Devices)
+					document.getElementById("DeviceList").innerText = `Known Devices:`
+					document.getElementById("DeviceDropDown").innerHTML = ""
+					for (var [key, value] of Object.entries(Devices)) {
+						var id = value.id
+						var type = value.type
+						var label = value.label
+						var profession = value.profession
+						var fuel = value.fuel
+						var tool = value.tool
+						var modem = value.modem
+						var broadcastNetwork = value.broadcastNetwork
+						switch (type) {
+							case "Turtle":
+								document.getElementById("DeviceList").innerHTML = document.getElementById("DeviceList").innerHTML + `<div id="deviceID-${id}">ID: ${id}, Type: ${type}, Label: ${label}, Profession: ${profession}, Fuel: ${fuel.current}/${fuel.max} (${fuel.perItem} per ${fuel.name}), Tool: ${tool}, Modem: ${modem}, Broadcast Network: ${broadcastNetwork}</div>`
+								break
+							case "Computer":
+								document.getElementById("DeviceList").innerHTML = document.getElementById("DeviceList").innerHTML + `<div id="deviceID-${id}">ID: ${id}, Type: ${type}, Label: ${label}, Modem: ${modem}, Broadcast Network: ${broadcastNetwork}</div>`
+								break
+							case "Pocket":
+								document.getElementById("DeviceList").innerHTML = document.getElementById("DeviceList").innerHTML + `<div id="deviceID-${id}">ID: ${id}, Type: ${type}, Label: ${label}, Modem: ${modem}, Broadcast Network: ${broadcastNetwork}</div>`
+								break
+						}
+						document.getElementById("DeviceDropDown").innerHTML = document.getElementById("DeviceDropDown").innerHTML + `<option value="${id}">ID: ${id}, Type: ${type}, Label: ${label}</option>`
+					}
+					document.getElementById("DeviceDropDown").disabled = false
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 302: //Recieved Data of a specific Device.
+					Devices[deviceID] = data
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = data.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = data.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (data.type) {
+						case "Turtle":
+							var deviceProfession = data.profession
+							document.getElementById("DeviceProfession").innerText = `Profession: ${deviceProfession}`
+							document.getElementById("DeviceProfession").hidden = false
+							var deviceFuel = {
+								"max": data.max,
+								"current": data.current,
+								"name": data.name,
+								"perItem": data.perItem
+							}
+							document.getElementById("DeviceFuel").innerText = `Fuel: ${deviceFuel.current}/${deviceFuel.max} (${deviceFuel.perItem} per ${deviceFuel.name})`
+							document.getElementById("DeviceFuel").hidden = false
+							var DeviceTool = data.tool
+							document.getElementById("DeviceTool").innerText = `Tool: ${DeviceTool}`
+							document.getElementById("DeviceTool").hidden = false
+							var DeviceModem = data
+							document.getElementById("DeviceModem").innerText = `Modem: ${DeviceModem}`
+							document.getElementById("DeviceModem").hidden = false
+							break
+						case "Computer":
+							document.getElementById("DeviceProfession").innerText = ``
+							document.getElementById("DeviceProfession").hidden = true
+							document.getElementById("DeviceTool").innerText = ``
+							document.getElementById("DeviceTool").hidden = true
+							var DeviceModem = data
+							document.getElementById("DeviceModem").innerText = `Modem: ${DeviceModem}`
+							document.getElementById("DeviceModem").hidden = false
+							break
+						case "Pocket":
+							document.getElementById("DeviceProfession").innerText = ``
+							document.getElementById("DeviceProfession").hidden = true
+							document.getElementById("DeviceTool").innerText = ``
+							document.getElementById("DeviceTool").hidden = true
+							document.getElementById("DeviceModem").innerText = ``
+							document.getElementById("DeviceModem").hidden = true
+							break
+					}
+					var DeviceBroadcastNetwork = data.broadcastNetwork
+					document.getElementById("DeviceBroadcastNetwork").innerText = `Broadcast Network: ${DeviceBroadcastNetwork}`
+					document.getElementById("DeviceBroadcastNetwork").hidden = false
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 303: //Recieved Type of a specific Device.
+					var device = Devices[deviceID]
+					Devices[deviceID].type = data
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = device.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = device.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (device.type) {
+						case "Turtle":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${data}, Label: ${device.label}, Fuel: ${device.fuel.current}/${device.fuel.max} (${device.fuel.perItem} per ${device.fuel.name}), Tool: ${device.tool}, Profession: ${device.profession}, Modem: ${device.modem}`
+							break
+						case "Computer":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${data}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+						case "Pocket":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${data}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+					}
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 304: //Recieved Label of a specific Device.
+					var device = Devices[deviceID]
+					Devices[deviceID].label = data
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = device.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = device.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (device.type) {
+						case "Turtle":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${data}, Fuel: ${device.fuel.current}/${device.fuel.max} (${device.fuel.perItem} per ${device.fuel.name}), Tool: ${device.tool}, Profession: ${device.profession}, Modem: ${device.modem}`
+							break
+						case "Computer":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${data}, Modem: ${device.modem}`
+							break
+						case "Pocket":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${data}, Modem: ${device.modem}`
+							break
+					}
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 305: //Recieved Fuel of a specific Device.
+					var device = Devices[deviceID]
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = device.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = device.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (device.type) {
+						case "Turtle":
+							Devices[deviceID].fuel = data
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Fuel: ${data.current}/${data.max} (${data.perItem} per ${data.name}), Tool: ${device.tool}, Profession: ${device.profession}, Modem: ${device.modem}`
+							break
+						case "Computer":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+						case "Pocket":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+					}
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 306: //Recieved Modem of a specific Device.
+					var device = Devices[deviceID]
+					Devices[deviceID].modem = data
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = device.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = device.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (device.type) {
+						case "Turtle":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Fuel: ${device.fuel.current}/${device.fuel.max} (${device.fuel.perItem} per ${device.fuel.name}), Tool: ${device.tool}, Profession: ${device.profession}, Modem: ${data}`
+							break
+						case "Computer":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${data}`
+							break
+						case "Pocket":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${data}`
+							break
+					}
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 307: //Recieved Tool of a specific Device.
+					var device = Devices[deviceID]
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = device.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = device.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (device.type) {
+						case "Turtle":
+							Devices[deviceID].tool = data
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Fuel: ${device.fuel.current}/${device.fuel.max} (${device.fuel.perItem} per ${device.fuel.name}), Tool: ${device.tool}, Profession: ${device.profession}, Modem: ${device.modem}`
+							break
+						case "Computer":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+						case "Pocket":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+					}
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+				case 308: //Recieved Broadcast Network of a specific Device.
+					var device = Devices[deviceID]
+					Devices[deviceID].broadcastNetwork = data
+					document.getElementById("DeviceID").innerText = `ID: ${deviceID}`
+					document.getElementById("DeviceID").hidden = false
+					var deviceType = device.type
+					document.getElementById("DeviceType").innerText = `Type: ${deviceType}`
+					document.getElementById("DeviceType").hidden = false
+					var deviceLabel = device.label
+					document.getElementById("DeviceLabel").innerText = `Label: ${deviceLabel}`
+					document.getElementById("DeviceLabel").hidden = false
+					switch (device.type) {
+						case "Turtle":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Fuel: ${device.fuel.current}/${device.fuel.max} (${device.fuel.perItem} per ${device.fuel.name}), Tool: ${device.tool}, Profession: ${device.profession}, Modem: ${device.modem}`
+							break
+						case "Computer":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+						case "Pocket":
+							document.getElementById(`deviceID-${deviceID}`).innerText = `ID: ${deviceID}, Type: ${device.type}, Label: ${device.label}, Modem: ${device.modem}`
+							break
+					}
+					console.debug(`----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------`)
+					break
+			}
+		}
+		function DisconnectFromWebsocket() {
+			var Packet = { ["code"]: 199 }
+			var SerializedPacket = JSON.stringify(Packet)
+			Websocket.send(SerializedPacket)
+			Websocket.close()
+			WriteToLog(`Connection to ${Websocket.url} closed!`)
+			console.log("Connection terminated with Code 199")
+		}
+		function ConnectToWebsocket() {
+			Websocket = new WebSocket(`ws://${document.getElementById("ConnectToWebsocketInput").value}`)
+			Websocket.onopen = function () {
+				document.getElementById("DiconnectFromWebsocketButton").disabled = false
+				document.getElementById("ConnectToWebsocketButton").disabled = true
+				WriteToLog(`Websocket connection open.`)
+				var packet = { ["code"]: 100 }
+				var serializedPacket = JSON.stringify(packet)
+				Websocket.send(serializedPacket)
+			}
+			Websocket.onclose = function (event) {
+				document.getElementById("DiconnectFromWebsocketButton").disabled = true
+				document.getElementById("ConnectToWebsocketButton").disabled = false
+				if (event.wasClean) {
+					console.error(`Error: `, event.code, ` - Connection terminated clean! Reason: `, event.reason)
+				} else {
+					console.error(`Error: `, event.code, ` - Connection terminated unclean! Reason: `, event.reason)
+				}
+			}
+			Websocket.onerror = function (event) {
+				WriteToLog(`An Error has occured, the Details are available in the Logs!`)
+				console.error("Error: ", event)
+				document.getElementById("DiconnectFromWebsocketButton").disabled = true
+				document.getElementById("ConnectToWebsocketButton").disabled = false
+			}
+			Websocket.onmessage = function (event) {
+				HandlePackets(event.data)
+			}
+		}
+	</script>
 </body>

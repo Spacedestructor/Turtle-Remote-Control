@@ -128,3 +128,7 @@ dist
 
 # Custom Ignores
 tmp/
+websocket.js
+test.lua
+todo.txt
+To-do.md

@@ -13,7 +13,8 @@
 		"read",
 		"sleep",
 		"shell",
-		"printError"
+		"printError",
+		"fs"
 	],
 	"Lua.diagnostics.disable": [
 		"undefined-field"

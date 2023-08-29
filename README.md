@@ -1,10 +1,2 @@
 # Turtle-Remote-Control
- Lets you Remote Control Minecraft Turtles from the ComputerCraft/ComputerCraft Tweaked Mod.
- If the Device is a turtle Filename will be "TurtleRemoteControl.lua", if its a PC it will be "ComputerRemoteControl.lua", for Pocket Computers is "PocketRemoteControl.lua"
- For singleplayer worlds its in the save folder of the coresponding world, computercraft and then depending on the device you want to put it on its either "computer" or "disk".
- Inside these folders devices are listed by there ID, you drop the File you want to use in there and it will show up on the device.
- No idea how this works for Multiplayer, helps if you go on the device and create the File your self with a random text, save it, get the device id from the terminal with the command "id". then go find the worlds folder for the multiplayer game and the rest will probably be similar like it is with singleplayer.
- This should apply to any places where you created the file on the folder as the mod should just mimic the folder path on your pc, so if its not in the root Location, just go in to whatever folder you created it in.
- run the software by opening the devices termina, run "lua" which switches you over to the lua console, then run "shell.run(Path,IP,Port,BroadcastNetwork)" where you replace "Path" with the Path the file is in on the device including full filename, "IP" and "Port" are replaced by the ip and port you can reach the websocket under, in singleplayer this will be localhost and a port of your choosing, for multiplayer this will be decided by the server hoster,
- broadcastNetwork can be anything but make sure that its not used by anything else as it would add unecessar noise to the mix, GPS uses "65534" for example to transmit its messages by default.
- For example this are the parameters i run the Command with while working on this Project: "shell.run("disk/TurtleRemoteControl.lua","127.0.0.1","3000","0")"
+ Lets you Remote Control Minecraft Turtles, Computers and Pocket Computers from the ComputerCraft/ComputerCraft Tweaked Mod.

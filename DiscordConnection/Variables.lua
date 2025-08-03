@@ -5,7 +5,7 @@ Monitor_Height = 0
 ---@type string
 Gateway = nil
 ---@type string
-Application_ID ="1298435480974528544" --Lua srewed me here, turning it in to 1.2984354809745e+18 due to type conversion. So its a string now.
+Application_ID ="INSERT_APPLICATION_ID_HERE" --Lua srewed me here, turning it in to 1.2984354809745e+18 due to type conversion. So its a string now.
 ---@type string
 Bot_Token = "Bot INSERT_TOKEN_HERE"
 ---@type table
@@ -32,13 +32,13 @@ Guild = {
 	Available = false
 }
 ---@type string
-Channel_Read_ID = "1288684891994722325"
+Channel_Read_ID = "INSERT_CHANNEL_ID_HERE"
 ---@type string
-Channel_Read_Name = "computercrafttweaked"
+Channel_Read_Name = "INSERT_CHANNEL_NAME_HERE"
 ---@type string
-Channel_Write_ID = "1288684891994722325"
+Channel_Write_ID = "INSERT_CHANNEL_ID_HERE"
 ---@type string
-Channel_Write_Name = "computercrafttweaked"
+Channel_Write_Name = "INSERT_CHANNEL_NAME_HERE"
 ---@type string
 Session_ID = nil
 ---@type boolean
@@ -46,9 +46,9 @@ Received_ACK = true
 ---@type integer
 Status_Timer = nil
 ---@type string
-Owner_ID = "130420421068587009"
+Owner_ID = "INSERT_OWNER_ID_HERE"
 ---@type string
-Owner_Name = "Ai Spacedestructor"
+Owner_Name = "INSERT_OWNER_NAME_HERE"
 ---@type string
 Status = ""
 ---@type integer

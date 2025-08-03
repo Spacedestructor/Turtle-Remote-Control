@@ -1,22 +1,28 @@
 {
 	"Lua.diagnostics.globals": [
-		"turtle",
-		"ws",
+		"term",
+		"term",
+		"peripheral",
 		"http",
 		"textutils",
-		"peripheral",
-		"send",
-		"monitor",
-		"pocket",
-		"inventory",
 		"write",
 		"read",
+		"printError",
 		"sleep",
 		"shell",
-		"printError",
-		"fs"
+		"commands",
+		"arg",
+		"multishell",
+		"colors",
+		"fs",
+		"window",
+		"parallel",
+		"rednet",
+		"turtle",
+		"ID",
+		"Server",
+		"Message",
+		"P"
 	],
-	"Lua.diagnostics.disable": [
-		"undefined-field"
-	]
+	"Lua.completion.autoRequire": false
 }

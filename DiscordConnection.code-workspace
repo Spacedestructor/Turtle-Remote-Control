@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"jackmacwindows.vscode-computercraft",
+			"sumneko.lua",
+			"jackmacwindows.craftos-pc"
+		]
+	}
+}
